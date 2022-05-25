@@ -56,16 +56,19 @@
     "transpile": "tsc --outDir src",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.2.1",
+    "@types/node": "^17.0.35",
     "cypress": "^5.6.0",
     "http-server": "^0.12.3",
     "npm-run-all": "^4.1.5",
     "rollup": "^2.33.1",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
   }
 }

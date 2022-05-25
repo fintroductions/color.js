@@ -1,3 +1,5 @@
+const axios = require('axios')
+
 type Args = {
   amount: number;
   format: string;
@@ -52,25 +54,39 @@ const rgbToHex = (rgb: Rgb): Hex => '#' + rgb.map((val) => {
   return hex.length === 1 ? '0' + hex : hex
 }).join('')
 
-const getImageData = (src: Url): Promise<Data> =>
-  new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas')
-    const context = <CanvasRenderingContext2D>canvas.getContext('2d')
-    const img = new Image
+const getBase64 = (url: string): Promise<string | undefined> => new Promise((resolve, reject) => {
+  try {
+    axios.get(url, { responseType: 'arraybuffer' }).then((res: any) => {
+      let raw = Buffer.from(res.data).toString('base64');
+      resolve("data:" + res.headers['content-type'] + ";base64," + raw)
+    }).catch((e: any) => {
+      console.error(e)
+      resolve(undefined)
+    });
+  } catch (error) {
+    reject(error)
+  } 
+})
 
+const getImageData = (src: Url): Promise<Data> => new Promise((resolve, reject) => {
+  const canvas = document.createElement('canvas')
+  const context = <CanvasRenderingContext2D>canvas.getContext('2d')
+  const img = new Image()
+  img.crossOrigin = ''
+  getBase64(src).then(base64Url => {
+    img.src = base64Url as string
     img.onload = () => {
       canvas.height = img.height
       canvas.width = img.width
       context.drawImage(img, 0, 0)
-
+  
       const data = context.getImageData(0, 0, img.width, img.height).data
-
+  
       resolve(data)
     }
     img.onerror = () => reject(Error('Image loading failed.'))
-    img.crossOrigin = ''
-    img.src = src
-  })
+  }).catch(e => console.error(`color.js`, e))
+})
 
 const getAverage = (data: Data, args: Args): Output => {
   const gap = 4 * args.sample
